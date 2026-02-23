@@ -1,0 +1,13 @@
+| group<%= it.section.order %> = [[<%= it.section.title %>]]
+<% if(it.section.items && it.section.items.length > 0) { -%>
+| list<%= it.section.order %> =
+<% it.section.items.forEach(function(item) { -%>
+* [[<%= item %>]]
+<% }); %>
+<% } -%>
+<% if(it.section.sections && it.section.sections.length > 0) { -%>
+| list<%= it.section.order %> =
+<% it.section.sections.forEach(function(section) { -%>
+<%~ include("RangerBoxSection.eta", { section: section }) -%>
+<% }); -%>
+<% } -%>

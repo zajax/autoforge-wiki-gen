@@ -1,0 +1,22 @@
+{{Navbox
+| template = <%= it.rangerBox.name %>
+| title = <%= it.rangerBox.title %>
+<% if(it.rangerBox.state) { -%>
+| state = <%= it.rangerBox.state %>
+<% } -%>
+<% if(it.rangerBox.editlinks) { -%>
+| editlinks = <%= it.rangerBox.editlinks %>
+<% } -%>
+<% if(it.rangerBox.above) { -%>
+| above = <%= it.rangerBox.above %>
+<% } -%>
+<% if(it.rangerBox.below) { -%>
+| below = <%= it.rangerBox.below %>
+<% } -%>
+<% if(it.rangerBox.striped) { -%>
+| striped = <%= it.rangerBox.striped -%>
+<% } -%>
+<% it.rangerBox.sections.forEach(function(section) { -%>
+<%~ include("RangerBoxSection.eta", { section: section }) -%>
+<% }); %>
+}}
