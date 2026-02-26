@@ -1,8 +1,10 @@
 import { parseLuaFile, figureOutValue } from "../utils/utils";
 import { CallStatement, CallExpression } from "luaparse";
+import { LootEntry } from "./loot";
 
 export interface HusbandryFood {
     food: string;
+    lootTable?: LootEntry;
     [key: string]: any;
 }
 
@@ -12,7 +14,7 @@ export interface HusbandryEntry {
     [key: string]: any;
 }
 
-export function parseHusbandry() {
+export function parseHusbandry(loot: { [lootName: string]: LootEntry }) {
     const ast = parseLuaFile('data/scripts/husbandry.lua');
 
     const children = ast.body.filter((x): x is CallStatement => {
@@ -59,6 +61,10 @@ export function parseHusbandry() {
             const animal = results[animalName];
             if(animal)
                 animal.foods[food.food] = food;
+            if(food.loot){
+                const lootEntry = loot[food.loot];
+                if(lootEntry) food.lootTable = lootEntry;
+            }
         });
     }
 

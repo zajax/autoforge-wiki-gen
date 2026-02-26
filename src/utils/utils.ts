@@ -2,9 +2,18 @@ import parser from "luaparse";
 import fs from "fs";
 import path from "path";
 import { Localization } from "../parsers/localization";
+import { Recipe } from "../parsers/recipes";
+import { FarmingEntry } from "../parsers/farming";
+import { HusbandryEntry } from "../parsers/husbandry";
+import { Prefab } from "../parsers/prefabs";
 
 
 const basePath = 'F:/Games/steamapps/common/AutoForge';
+
+let localizationsCache:{ [key: string]: Localization } = {};
+export function setLocalizations(localizations: { [key: string]: Localization }) {
+    localizationsCache = localizations;
+}
 
 export function parseLuaFile(filePath: string, relativeToAutoForgeRoot = true):parser.Chunk {
     const lua_file_contents = fs.readFileSync(relativeToAutoForgeRoot ? path.join(basePath, filePath) : filePath);
@@ -12,19 +21,31 @@ export function parseLuaFile(filePath: string, relativeToAutoForgeRoot = true):p
 }
 
 export function toSnakeCase(str: string):string {
-    return str[0]?.toLowerCase() + str.slice(1, str.length).replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+    return str[0]?.toLowerCase() + str.slice(1, str.length).replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`).replace(/[- ]/g, '');
 }
 
 export function cleanName(str: string):string {
     return str.split('_').map(x => /^i+$/i.test(x) ? x.toUpperCase() : x[0]?.toUpperCase() + x.slice(1)).join(' ');
 }
 
-export function localizedName(internalName: string, localizations: { [key: string]: Localization }):string {
-    return localizations[internalName]?.name ?? internalName;
+export function localizedName(internalName: string):string {
+    switch(internalName){
+        case 'Manual':
+        case 'structure.player':
+            return 'Otto';
+        case 'structure.dream_telescope':
+            return 'Dream Telescope';
+        case 'structure.refiner':
+            return 'Matter Refiner';
+        case 'structure.compressor':
+            return 'Matter Compressor';
+        default:
+            return localizationsCache[internalName]?.name ?? internalName;
+    }
 }
 
-export function localizedDesc(internalName: string, localizations: { [key: string]: Localization }):string {
-    return localizations[internalName]?.desc ?? "";
+export function localizedDesc(internalName: string):string {
+    return localizationsCache[internalName]?.desc ?? "";
 }
 
 export function figureOutValue(val: any):any {
@@ -42,6 +63,9 @@ export function figureOutValue(val: any):any {
         if(val.base.name === 'ItemCategory') return val.identifier.name;
         if(val.base.name === 'fmod') return val.identifier.name;
         if(val.base.name === 'PlacementFeatures') return val.base.name+"."+val.identifier.name;
+        if(val.base.name === 'FuelTypes') return val.base.name+"."+val.identifier.name;
+        if(val.base.name === 'MatterType') return val.base.name+"."+val.identifier.name;
+        if(val.base.name === 'TransportTileType') return val.identifier.name;
         console.error('unknown memberexpression');
         console.trace();
         console.dir(val, {depth:null});
@@ -68,4 +92,111 @@ export function dirWalk(dir: string, relativeToAutoForgeRoot = true) {
         withFileTypes: true,
         recursive: true
     });
+}
+
+/** Format power value: 1 power unit = 60 S. 1000 S = 1 MS. */
+export function formatPower(raw: number | undefined): string | undefined {
+    if (raw == null || raw === 0) return undefined;
+    const sPerMin = raw * 60;
+    if (sPerMin >= 1000) return `${(sPerMin / 1000).toFixed(2)} MS/min`;
+    return `${sPerMin.toFixed(2)} S/min`;
+}
+
+/** Wrap an item name in a wiki {{icon}} template. */
+export function icon(name: string, label: string | undefined = undefined, link: string | undefined = undefined): string {
+    if(name === 'Manual') return '{{icon|Otto||Player}}';
+    if(label && link) return `{{icon|${name}|${label}|${link}}}`;
+    if(label) return `{{icon|${name}|${label}}}`;
+    if(link) return `{{icon|${name}||${link}}}`;
+    return `{{icon|${name}}}`;
+}
+
+export function iconSmall(name: string, label: string | undefined = undefined): string {
+    if(label) return `{{iconSmall|${name}|${label}}}`;
+    return `{{iconSmall|${name}}}`;
+}
+
+
+/** Build recipe wikitext showing inputs → outputs. */
+export function formatRecipe(recipe: Recipe): string {
+    const inputs = Object.entries(recipe.inputs)
+        .map(([name, qty]) => `${icon(localizedName(name), qty)}`)
+        .join(' + ');
+    const outputs = Object.entries(recipe.outputs)
+        .map(([name, qty]) => `${icon(localizedName(name), qty)}`)
+        .join(' + ');
+    if(recipe.duration) return `{{icon|time|${recipe.duration}|time}} + ${inputs} → ${outputs}`;
+    return `${inputs} → ${outputs}`;
+}
+
+const recipesByInputCache: { [itemName: string]: Recipe[] } = {};
+const recipesByOutputCache: { [itemName: string]: Recipe[] } = {};
+
+export function recipesByOutput(recipes: { [itemName: string]: Recipe }, itemName: string): Recipe[] {
+    if(Object.keys(recipesByOutputCache).length === 0){
+        for (const recipe of Object.values(recipes)) {
+            for (const outputName of Object.keys(recipe.outputs)) {
+                (recipesByOutputCache[outputName] ??= []).push(recipe);
+            }
+        }
+    }
+    return recipesByOutputCache[itemName] ?? [];
+}
+
+export function recipesByInput(recipes: { [itemName: string]: Recipe }, itemName: string): Recipe[] {
+    if(Object.keys(recipesByInputCache).length === 0){
+        for (const recipe of Object.values(recipes)) {
+            for (const inputName of Object.keys(recipe.inputs)) {
+                (recipesByInputCache[inputName] ??= []).push(recipe);
+            }
+        }
+    }
+    return recipesByInputCache[itemName] ?? [];
+}
+
+const farmingUsageCache: { [itemName: string]: FarmingEntry[] } = {};
+const husbandryUsageCache: { [itemName: string]: HusbandryEntry[] } = {};
+
+export function farmingUsage(farming: { [plantName: string]: FarmingEntry } , itemName: string)  {
+    
+        
+    if(Object.keys(farmingUsageCache).length === 0){
+        Object.values(farming).forEach(entry => {
+            Object.values(entry).forEach(stage => {
+                if (!stage?.lootTable) return;
+                stage.lootTable.items.forEach((item:any) => {
+                    if((farmingUsageCache[item.name] ??= []).includes(entry)) return;
+                    (farmingUsageCache[item.name] ??= []).push(entry);
+                });
+            });
+        });
+    }
+    return farmingUsageCache[itemName] ?? [];
+}
+
+export function husbandryUsage(husbandry: { [eggName: string]: HusbandryEntry } , itemName: string)  {
+    if(Object.keys(husbandryUsageCache).length === 0){
+        Object.values(husbandry).forEach(entry => {
+            Object.values(entry.foods).forEach(food => {
+                if (!food?.lootTable) return;
+                food.lootTable.items.forEach((item:any) => {
+                    if((husbandryUsageCache[item.name] ??= []).includes(entry)) return;
+                    (husbandryUsageCache[item.name] ??= []).push(entry);
+                });
+            });
+        });
+    }
+    return husbandryUsageCache[itemName] ?? [];
+}
+
+export function plantNameToSeedId(plantName: string, prefabs: { [key: string]: Prefab }): string {
+    if(plantName === 'Quartz') return 'material.quartz';
+    if(plantName === 'Ember Pepper') return 'flora.ember_pepper';
+    const idTest = `flora.${toSnakeCase(plantName)}`;
+    const prefab = Object.entries(prefabs).find(([id, p]) => p.creates === idTest && id !== idTest)?.[1];
+    // if(plantName.toLocaleLowerCase().includes('ember')) {
+    //    console.log(plantName, idTest, prefab?.id);
+    // }
+    if(prefab) return prefab.id;
+    return plantName; // Fallback in case no matching prefab is found
 }

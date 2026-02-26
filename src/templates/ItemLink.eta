@@ -1,0 +1,2 @@
+<% const locName = it.localizedName(it.itemName) -%>
+[[File:<%= locName %>.png|20px|link=<%= locName %>]] [[<%= locName %>]]

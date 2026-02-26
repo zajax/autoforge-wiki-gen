@@ -1,8 +1,13 @@
+import { FarmingEntry } from "../parsers/farming";
+import { HusbandryEntry } from "../parsers/husbandry";
+import { Recipe } from "../parsers/recipes";
 
 
 export interface InfoboxData {
     /** Title for template box. Automatically filled by page name unless specified manually. */
     title?: string;
+
+    description?: string;
 
     /** Image names to display. If separated by a colon and descriptor, allows multiple images in tabs.
      * @example "Structure Assembler.png:Placed,Assembler.png:Inventory," */
@@ -52,6 +57,21 @@ export interface InfoboxData {
     /** What does this refine into? Use the {{icon}} template. */
     refto?: string;
 
+    /** What structure extracts this item? Use the {{icon}} template. */
+    ext?: string;
+
+    /** Dimensions of the structure (e.g. "2x2", "3x3"). */
+    dimen?: string;
+
+    /** Energy power generated per min. */
+    energy?: string;
+
+    /** Biofuel power generated per min. */
+    bio?: string;
+
+    /** Mana power generated per min. */
+    mana?: string;
+
     /** Hit Points */
     HP?: number;
 
@@ -63,4 +83,14 @@ export interface InfoboxData {
 
     /** Energy */
     NRG?: number;
+
+    producingRecipes?: Recipe[];
+    consumingRecipes?: Recipe[];
+    farmingProducers?: FarmingEntry[];
+    farmingConsumers?: FarmingEntry[];
+    husbandryProducers?: HusbandryEntry[];
+    husbandryConsumers?: HusbandryEntry[];
+
+    categories?: string[];
+    matter?: {type: string, amount: any};
 }

@@ -6,15 +6,17 @@ export interface FarmingStage {
     plantName: string;
     totalTime: number;
     loot: any;
+    lootTable?: LootEntry;
+    type: string;
+    fluid: string;
     [key: string]: any;
 }
 
 export interface FarmingEntry {
-    lootTable?: LootEntry;
-    [stageKey: string]: FarmingStage | LootEntry | undefined;
+    [stageKey: string]: FarmingStage  | undefined;
 }
 
-export function parseFarming() {
+export function parseFarming(loot: { [lootName: string]: LootEntry }) {
     const ast = parseLuaFile('data/scripts/farming.lua');
 
     const children = ast.body.filter((x): x is CallStatement => {
@@ -40,6 +42,12 @@ export function parseFarming() {
                 plantName: plantName,
                 ...Object.fromEntries(f?.value?.fields.map((y: any) => [y.key.name, figureOutValue(y.value)]))
             })))[0];
+            plantStages.forEach(stage => {
+                if(stage.loot){
+                    const lootEntry = loot[stage.loot];
+                    if(lootEntry) stage.lootTable = lootEntry;
+                }
+            });
         results[plantName] = {
             ...Object.fromEntries(plantStages.map(s => [s.type + (s.fluid !== 'material.none' ? '+' + s.fluid : ''), s]))
         };

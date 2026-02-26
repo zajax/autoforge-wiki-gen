@@ -1,0 +1,276 @@
+<% /* Compute which sections are active */ -%>
+<% const hasPower = it.item.idle || it.item.active || it.item.biofuel; -%>
+<% const hasFuel = it.item.energy || it.item.bio || it.item.mana; -%>
+<% const hasCrafting = it.item.prodby || it.item.reqfor || it.item.refto; -%>
+<% const hasCombat = it.item.HP || it.item.ATK || it.item.DEF || it.item.NRG; -%>
+<% const sections = ['general', hasPower && 'power', hasFuel && 'fuel', hasCrafting && 'crafting', hasCombat && 'combat'].filter(Boolean).join(', '); -%>
+{{item_infobox
+|title=<%= it.item.title || '{{PAGENAME}}' %>
+<% if(it.item.images) {
+  const entries = it.item.images.split(',').filter(e => e.trim());
+  const files = entries.map(e =>  e.split(':')[0].trim()).join(',');
+  const tabs = entries.map(e => (e.split(':')[1] || '').trim()).join(',');
+-%>
+|images=<%= files %>
+|tabs=<%= tabs %>
+<% } -%>
+
+<% const generalFields = [
+  it.item.recipe1 && 'recipe1',
+  it.item.recipe2 && 'recipe2',
+  it.item.recipe3 && 'recipe3',
+  it.item.ext && 'ext',
+  it.item.stack && 'stack',
+  it.item.storage && 'storage',
+  it.item.output && 'output',
+  it.item.transpd && 'transpd',
+  it.item.craftspd && 'craftspd',
+  it.item.dimen && 'dimen',
+].filter(Boolean).join(', '); -%>
+|sections=<%= sections %>
+
+|general=<%= generalFields %>
+<% if(it.item.recipe1) { -%>
+|recipe1_class=druid-stacked
+<% } -%>
+<% if(it.item.recipe2) { -%>
+|recipe2_class=druid-stacked
+<% } -%>
+<% if(it.item.recipe3) { -%>
+|recipe3_class=druid-stacked
+<% } -%>
+<% if(it.item.ext) { -%>
+|ext_class=druid-stacked
+<% } -%>
+
+<% if(hasPower) { -%>
+|power=idle, active, biofuel
+<% } -%>
+
+<% if(hasFuel) { -%>
+|fuel=energy,bio,mana
+<% } -%>
+
+<% if(hasCrafting) { -%>
+|crafting=prodby, reqfor, refto
+|crafting_class=druid-stacked
+|crafting_collapsible=Yes
+<% } -%>
+
+<% if(hasCombat) { -%>
+|combat=HP, ATK, DEF, NRG
+|combat_collapsible=Yes
+|combat_collapsed=Yes
+<% } -%>
+
+<% if(it.item.recipe1) { -%>
+|recipe1=<%= it.item.recipe1 %>
+<% } -%>
+<% if(it.item.recipe2) { -%>
+|recipe2=<%= it.item.recipe2 %>
+<% } -%>
+<% if(it.item.recipe3) { -%>
+|recipe3=<%= it.item.recipe3 %>
+<% } -%>
+<% if(it.item.ext) { -%>
+|ext=<%= it.item.ext %>
+<% } -%>
+<% if(it.item.stack) { -%>
+|stack=<%= it.item.stack %>
+<% } -%>
+<% if(it.item.storage) { -%>
+|storage=<%= it.item.storage %>
+<% } -%>
+<% if(it.item.output) { -%>
+|output=<%= it.item.output %> {{time}}
+<% } -%>
+<% if(it.item.transpd) { -%>
+|transpd=<%= it.item.transpd %> {{time}}
+<% } -%>
+<% if(it.item.craftspd) { -%>
+|craftspd=<%= it.item.craftspd %>%
+<% } -%>
+<% if(it.item.dimen) { -%>
+|dimen=<%= it.item.dimen %>
+<% } -%>
+<% if(it.item.idle) { -%>
+|idle=<%= it.item.idle %>
+<% } -%>
+<% if(it.item.active) { -%>
+|active=<%= it.item.active %>
+<% } -%>
+<% if(it.item.biofuel) { -%>
+|biofuel=<%= it.item.biofuel * 60 %> {{time}}
+<% } -%>
+<% if(it.item.energy) { -%>
+|energy=<%= it.item.energy %>
+<% } -%>
+<% if(it.item.bio) { -%>
+|bio=<%= it.item.bio %>
+<% } -%>
+<% if(it.item.mana) { -%>
+|mana=<%= it.item.mana %>
+<% } -%>
+<% if(it.item.prodby) { -%>
+|prodby=<%= it.item.prodby %>
+<% } -%>
+<% if(it.item.reqfor) { -%>
+|reqfor=<%= it.item.reqfor %>
+<% } -%>
+<% if(it.item.refto) { -%>
+|refto=<%= it.item.refto %>
+<% } -%>
+<% if(it.item.HP) { -%>
+|HP=<%= it.item.HP %>
+<% } -%>
+<% if(it.item.ATK) { -%>
+|ATK=<%= it.item.ATK %>
+<% } -%>
+<% if(it.item.DEF) { -%>
+|DEF=<%= it.item.DEF %>
+<% } -%>
+<% if(it.item.NRG) { -%>
+|NRG=<%= it.item.NRG %>
+<% } -%>
+
+<% /* |general_label=General Info
+|power_label=Required Power
+|fuel_label=Generated Power
+|crafting_label=Crafting
+|combat_label=Combat Stats
+
+|ext_label=Extracted by
+|idle_label=Idle
+|active_label=Active
+|biofuel_label=Biofuel
+|energy_label=Energy
+|bio_label=Biofuel
+|mana_label=Mana
+|recipe1_label=Recipe
+|recipe2_label=Forge Recipe
+|recipe3_label=Lava Forge Recipe
+|stack_label=Stack Size
+|storage_label=Storage Slots
+|output_label=Output
+|transpd_label=Transport Speed
+|craftspd_label=Crafting Speed
+|dimen_label=Dimensions
+|prodby_label=Produced by
+|reqfor_label=Required for
+|refto_label=Refines to */ %>
+
+}}
+<noinclude>
+
+<% if(it.item.description) { -%>
+<%= it.item.description || '' %>
+<% } -%>
+
+<% if(hasCrafting) { -%>
+==Crafting==
+<% if(it.item.producingRecipes.length > 0) { -%>
+===Recipes===
+{| class="wikitable" style="white-space: wrap"
+|- 
+! Machine !! Input !! Output !! Time
+<% it.item.producingRecipes.forEach(function(recipe) { -%>
+|-
+| <%= recipe.machines.map(machine => `${include('ItemLink.eta', { itemName: machine })}`).join('<br/>') -%>
+ || <%= Object.entries(recipe.inputs).map(([input, amount]) => `${amount} ${include('ItemLink.eta', { itemName: input })}`).join('<br/>') -%>
+ || <%= Object.entries(recipe.outputs).map(([output, amount]) => `${amount} ${include('ItemLink.eta', { itemName: output })}`).join('<br/>') -%>
+ || <%= recipe.duration %>
+<% }); -%>
+|}
+<% } -%>
+<% if(it.item.consumingRecipes.length > 0) { -%>
+===Used In===
+{| class="wikitable" style="white-space: wrap"
+|- 
+! Machine !! Input !! Output !! Time
+<% it.item.consumingRecipes.forEach(function(recipe) { -%>
+|-
+| <%= recipe.machines.map(machine => `${include('ItemLink.eta', { itemName: machine })}`).join('<br/>') -%>
+ || <%= Object.entries(recipe.inputs).map(([input, amount]) => `${amount} ${include('ItemLink.eta', { itemName: input })}`).join('<br/>') -%>
+ || <%= Object.entries(recipe.outputs).map(([output, amount]) => `${amount} ${include('ItemLink.eta', { itemName: output })}`).join('<br/>') -%>
+ || <%= recipe.duration %>
+<% }); -%>
+|}
+<% } -%>
+<% if(it.item.farmingProducers.length > 0 || it.item.farmingConsumers.length > 0) { -%>
+===Farming===
+<% if(it.item.farmingProducers.length > 0) { -%>
+{| class="wikitable" style="white-space: wrap"
+|+ Producers
+|- 
+! Plant !! Tool !! Output
+<% it.item.farmingProducers.forEach(function(farmingEntry) { -%>
+<% Object.entries(farmingEntry).filter(([_, farmingStage]) => farmingStage.type !== 'Manual' && farmingStage.lootTable.items.some(i=>it.localizedName(i.name)===it.item.title)).forEach(([_, farmingStage]) => { -%>
+|-
+| <%~ include('ItemLink.eta', { itemName: it.plantNameToSeedId(farmingStage.plantName) }) -%>
+ || <%~ include('ItemLink.eta', { itemName: farmingStage.type }) -%><% if(farmingStage.fluid && farmingStage.fluid !== 'material.none') { -%> + <%~ include('ItemLink.eta', { itemName: farmingStage.fluid }) -%> <% } -%>
+ || <% farmingStage.lootTable.items.forEach(item => { -%>
+ <%= item.minQuantity %><% if(item.minQuantity !== item.maxQuantity) { -%> - <%= item.maxQuantity %><% } -%> <%= include('ItemLink.eta', { itemName: item.name }) %><br/><% }); %>
+<% }); -%>
+<% }); -%>
+|}
+<% } -%>
+<% if(it.item.farmingConsumers.length > 0) { -%>
+{| class="wikitable" style="white-space: wrap"
+|+ Consumers
+|- 
+! Plant !! Tool !! Output
+<% it.item.farmingConsumers.forEach(function(farmingEntry) { -%>
+<% Object.entries(farmingEntry).filter(([_, farmingStage]) => farmingStage.type !== 'Manual').forEach(([_, farmingStage]) => { -%>
+|-
+| <%~ include('ItemLink.eta', { itemName: it.plantNameToSeedId(farmingStage.plantName) }) -%>
+ || <%~ include('ItemLink.eta', { itemName: farmingStage.type, fluid: farmingStage.fluid }) -%><% if(farmingStage.fluid && farmingStage.fluid !== 'material.none') { -%> + <%~ include('ItemLink.eta', { itemName: farmingStage.fluid }) -%> <% } -%>
+ || <% farmingStage.lootTable.items.forEach(item => { -%>
+ <%= item.minQuantity %><% if(item.minQuantity !== item.maxQuantity) { -%> - <%= item.maxQuantity %><% } -%> <%= include('ItemLink.eta', { itemName: item.name }) %><br/><% }); %>
+<% }); -%>
+<% }); -%>
+|}
+<% } -%>
+<% } -%>
+<% if(it.item.husbandryProducers.length > 0 || it.item.husbandryConsumers.length > 0) { -%>
+===Husbandry===
+<% if(it.item.husbandryProducers.length > 0) { -%>
+{| class="wikitable" style="white-space: wrap"
+|+ Producers
+|- 
+! Animal !! Food !! Output
+<% it.item.husbandryProducers.forEach(function(husbandryEntry) { -%>
+<% Object.entries(husbandryEntry.foods).filter(([_, food]) => food.lootTable.items.some(i=>it.localizedName(i.name)===it.item.title)).forEach(([_, food]) => { -%>
+|-
+| <%~ include('ItemLink.eta', { itemName: husbandryEntry.name }) -%>
+ || <%~ include('ItemLink.eta', { itemName: food.food }) -%>
+ || <% food.lootTable.items.forEach(item => { -%>
+ <%= item.minQuantity %><% if(item.minQuantity !== item.maxQuantity) { -%> - <%= item.maxQuantity %><% } -%> <%= include('ItemLink.eta', { itemName: item.name }) %><br/><% }); %>
+<% }); -%>
+<% }); -%>
+|}
+<% } -%>
+<% if(it.item.husbandryConsumers.length > 0) { -%>
+{| class="wikitable" style="white-space: wrap"
+|+ Consumers
+|- 
+! Animal !! Food !! Output
+<% it.item.husbandryConsumers.forEach(function(husbandryEntry) { -%>
+<% Object.entries(husbandryEntry.foods).filter(([_, food]) =>  it.localizedName(husbandryEntry.name)===it.item.title || it.localizedName(food.food) === it.item.title).forEach(([_, food]) => { -%>
+|-
+| <%~ include('ItemLink.eta', { itemName: husbandryEntry.name }) -%>
+ || <%~ include('ItemLink.eta', { itemName: food.food }) -%>
+ || <% food.lootTable.items.forEach(item => { -%>
+ <%= item.minQuantity %><% if(item.minQuantity !== item.maxQuantity) { -%> - <%= item.maxQuantity %><% } -%> <%= include('ItemLink.eta', { itemName: item.name }) %><br/><% }); %>
+<% }); -%>
+<% }); -%>
+|}
+<% } -%>
+
+<% } -%>
+<% } -%>
+
+<% if(it.item.categories && it.item.categories.length > 0) { -%>
+<% it.item.categories.forEach(function(category) { -%>
+[[Category:<%= category %>]]
+<% }); -%>
+<% } -%>
